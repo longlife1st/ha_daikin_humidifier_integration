@@ -1,25 +1,24 @@
-"""Adds config flow for Blueprint."""
+"""Adds config flow for Daikin Humidifier."""
 
 from __future__ import annotations
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_HOST
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
-from slugify import slugify
 
 from .api import (
-    IntegrationBlueprintApiClient,
-    IntegrationBlueprintApiClientAuthenticationError,
-    IntegrationBlueprintApiClientCommunicationError,
-    IntegrationBlueprintApiClientError,
+    DaikinApiClient,
+    DaikinApiClientAuthenticationError,
+    DaikinApiClientCommunicationError,
+    DaikinApiClientError,
 )
 from .const import DOMAIN, LOGGER
 
 
-class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+class DaikinFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+    """Config flow for Daikin Humidifier."""
 
     VERSION = 1
 
@@ -31,29 +30,29 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
         if user_input is not None:
             try:
-                await self._test_credentials(
-                    username=user_input[CONF_USERNAME],
-                    password=user_input[CONF_PASSWORD],
+                info = await self._test_connection(
+                    host=user_input[CONF_HOST],
                 )
-            except IntegrationBlueprintApiClientAuthenticationError as exception:
+            except DaikinApiClientAuthenticationError as exception:
                 LOGGER.warning(exception)
                 _errors["base"] = "auth"
-            except IntegrationBlueprintApiClientCommunicationError as exception:
+            except DaikinApiClientCommunicationError as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
-            except IntegrationBlueprintApiClientError as exception:
+            except DaikinApiClientError as exception:
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
-                await self.async_set_unique_id(
-                    ## Do NOT use this in production code
-                    ## The unique_id should never be something that can change
-                    ## https://developers.home-assistant.io/docs/config_entries_config_flow_handler#unique-ids
-                    unique_id=slugify(user_input[CONF_USERNAME])
-                )
+                # Use MAC address or device name as unique_id
+                unique_id = info.get("mac", info.get("name", user_input[CONF_HOST]))
+                await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
+                
+                # Use device name as title if available, otherwise use host
+                title = info.get("name", user_input[CONF_HOST])
+                
                 return self.async_create_entry(
-                    title=user_input[CONF_USERNAME],
+                    title=title,
                     data=user_input,
                 )
 
@@ -62,16 +61,11 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_USERNAME,
-                        default=(user_input or {}).get(CONF_USERNAME, vol.UNDEFINED),
+                        CONF_HOST,
+                        default=(user_input or {}).get(CONF_HOST, vol.UNDEFINED),
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
-                        ),
-                    ),
-                    vol.Required(CONF_PASSWORD): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.PASSWORD,
                         ),
                     ),
                 },
@@ -79,11 +73,10 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
-    async def _test_credentials(self, username: str, password: str) -> None:
-        """Validate credentials."""
-        client = IntegrationBlueprintApiClient(
-            username=username,
-            password=password,
+    async def _test_connection(self, host: str) -> dict[str, str]:
+        """Validate the connection to the device."""
+        client = DaikinApiClient(
+            host=host,
             session=async_create_clientsession(self.hass),
         )
-        await client.async_get_data()
+        return await client.async_get_basic_info()

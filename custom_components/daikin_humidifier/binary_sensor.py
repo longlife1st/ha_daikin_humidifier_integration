@@ -1,4 +1,4 @@
-"""Binary sensor platform for custom_components/daikin_humidifier."""
+"""Binary sensor platform for Daikin Humidifier."""
 
 from __future__ import annotations
 
@@ -10,32 +10,32 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 
-from .entity import IntegrationBlueprintEntity
+from .entity import DaikinEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from .coordinator import BlueprintDataUpdateCoordinator
-    from .data import IntegrationBlueprintConfigEntry
+    from .coordinator import DaikinDataUpdateCoordinator
+    from .data import DaikinConfigEntry
 
 ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
-        key="custom_components/daikin_humidifier",
-        name="Daikin Humidifier Integration Binary Sensor",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        key="filter_sign",
+        name="Filter",
+        device_class=BinarySensorDeviceClass.PROBLEM,
     ),
 )
 
 
 async def async_setup_entry(
     hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
-    entry: IntegrationBlueprintConfigEntry,
+    entry: DaikinConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the binary_sensor platform."""
     async_add_entities(
-        IntegrationBlueprintBinarySensor(
+        DaikinBinarySensor(
             coordinator=entry.runtime_data.coordinator,
             entity_description=entity_description,
         )
@@ -43,19 +43,25 @@ async def async_setup_entry(
     )
 
 
-class IntegrationBlueprintBinarySensor(IntegrationBlueprintEntity, BinarySensorEntity):
-    """custom_components/daikin_humidifier binary_sensor class."""
+class DaikinBinarySensor(DaikinEntity, BinarySensorEntity):
+    """Daikin binary_sensor class."""
 
     def __init__(
         self,
-        coordinator: BlueprintDataUpdateCoordinator,
+        coordinator: DaikinDataUpdateCoordinator,
         entity_description: BinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary_sensor class."""
         super().__init__(coordinator)
         self.entity_description = entity_description
+        self._attr_unique_id = (
+            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        )
 
     @property
     def is_on(self) -> bool:
         """Return true if the binary_sensor is on."""
-        return self.coordinator.data.get("title", "") == "foo"
+        status = self.coordinator.data.get("status", {})
+        value = status.get(self.entity_description.key)
+        # Assuming "1" means filter needs replacement
+        return value == "1"

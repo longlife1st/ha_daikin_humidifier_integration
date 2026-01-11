@@ -1,12 +1,12 @@
 {
-  "domain": "custom_components/daikin_humidifier",
-  "name": "Daikin Humidifier Integration",
+  "domain": "daikin_humidifier",
+  "name": "Daikin Humidifier",
   "codeowners": [
-    "@ludeeus"
+    "@longlife"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/ludeeus/custom_components/daikin_humidifier",
-  "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/ludeeus/custom_components/daikin_humidifier/issues",
+  "documentation": "https://github.com/longlife1st/ha_daikin_humidifier_integration",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/longlife1st/ha_daikin_humidifier_integration/issues",
   "version": "0.1.0"
 }

@@ -1,4 +1,4 @@
-"""Custom types for custom_components/daikin_humidifier."""
+"""Custom types for Daikin Humidifier."""
 
 from __future__ import annotations
 
@@ -9,17 +9,17 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.loader import Integration
 
-    from .api import IntegrationBlueprintApiClient
-    from .coordinator import BlueprintDataUpdateCoordinator
+    from .api import DaikinApiClient
+    from .coordinator import DaikinDataUpdateCoordinator
 
 
-type IntegrationBlueprintConfigEntry = ConfigEntry[IntegrationBlueprintData]
+type DaikinConfigEntry = ConfigEntry[DaikinData]
 
 
 @dataclass
-class IntegrationBlueprintData:
-    """Data for the Blueprint integration."""
+class DaikinData:
+    """Data for the Daikin integration."""
 
-    client: IntegrationBlueprintApiClient
-    coordinator: BlueprintDataUpdateCoordinator
+    client: DaikinApiClient
+    coordinator: DaikinDataUpdateCoordinator
     integration: Integration
