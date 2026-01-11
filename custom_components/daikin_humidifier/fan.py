@@ -119,9 +119,7 @@ class DaikinFan(DaikinEntity, FanEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the speed percentage."""
-        fan_mode = percentage_to_ordered_list_item(
-            ORDERED_NAMED_FAN_SPEEDS, percentage
-        )
+        fan_mode = percentage_to_ordered_list_item(ORDERED_NAMED_FAN_SPEEDS, percentage)
         fan_speed = FAN_REVERSE.get(fan_mode)
 
         if fan_speed:
