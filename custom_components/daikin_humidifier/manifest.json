@@ -1,0 +1,12 @@
+{
+  "domain": "custom_components/daikin_humidifier",
+  "name": "Daikin Humidifier Integration",
+  "codeowners": [
+    "@ludeeus"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/ludeeus/custom_components/daikin_humidifier",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/ludeeus/custom_components/daikin_humidifier/issues",
+  "version": "0.1.0"
+}

@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for integration_blueprint."""
+"""DataUpdateCoordinator for custom_components/daikin_humidifier."""
 
 from __future__ import annotations
 
