@@ -47,10 +47,10 @@ class DaikinFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 unique_id = info.get("mac", info.get("name", user_input[CONF_HOST]))
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
-                
+
                 # Use device name as title if available, otherwise use host
                 title = info.get("name", user_input[CONF_HOST])
-                
+
                 return self.async_create_entry(
                     title=title,
                     data=user_input,

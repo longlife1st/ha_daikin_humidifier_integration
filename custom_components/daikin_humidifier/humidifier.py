@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from homeassistant.components.humidifier import (
     HumidifierDeviceClass,
@@ -13,17 +13,10 @@ from homeassistant.components.humidifier import (
 from .const import (
     HUMIDITY_HIGH,
     HUMIDITY_LOW,
-    HUMIDITY_MODES,
     HUMIDITY_NORMAL,
     HUMIDITY_OFF,
-    HUMIDITY_REVERSE,
-    MODE_AUTO,
-    MODE_CIRCULATOR,
-    MODE_ECO,
-    MODE_MOISTURIZE,
-    MODE_POLLEN,
-    MODES,
     MODE_REVERSE,
+    MODES,
     POWER_OFF,
     POWER_ON,
 )
@@ -52,9 +45,6 @@ class DaikinHumidifier(DaikinEntity, HumidifierEntity):
     _attr_device_class = HumidifierDeviceClass.HUMIDIFIER
     _attr_supported_features = HumidifierEntityFeature.MODES
     _attr_name = None  # Use device name
-    
-    # Available humidity modes - we'll map these to the 4 Daikin levels
-    _attr_available_modes = ["low", "normal", "high"]
     _attr_min_humidity = 0
     _attr_max_humidity = 100
 
@@ -86,7 +76,7 @@ class DaikinHumidifier(DaikinEntity, HumidifierEntity):
         """Return the target humidity."""
         control = self.coordinator.data.get("control", {})
         humd_value = control.get("humd")
-        
+
         # Map Daikin levels to percentages
         humidity_map = {
             HUMIDITY_OFF: 0,
@@ -108,14 +98,14 @@ class DaikinHumidifier(DaikinEntity, HumidifierEntity):
                 return None
         return None
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(self) -> None:
         """Turn the device on."""
         await self.coordinator.config_entry.runtime_data.client.async_set_control_info(
             power=POWER_ON
         )
         await self.coordinator.async_request_refresh()
 
-    async def async_turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self) -> None:
         """Turn the device off."""
         await self.coordinator.config_entry.runtime_data.client.async_set_control_info(
             power=POWER_OFF
@@ -125,25 +115,24 @@ class DaikinHumidifier(DaikinEntity, HumidifierEntity):
     async def async_set_humidity(self, humidity: int) -> None:
         """Set new target humidity."""
         # Map percentage to Daikin levels
+        # Low=40%, Normal=50%, High=60%
         if humidity == 0:
             humd_value = HUMIDITY_OFF
-        elif humidity <= 40:
+        elif humidity <= 45:  # noqa: PLR2004
             humd_value = HUMIDITY_LOW
-        elif humidity <= 50:
+        elif humidity <= 55:  # noqa: PLR2004
             humd_value = HUMIDITY_NORMAL
         else:
             humd_value = HUMIDITY_HIGH
-            
-        await self.coordinator.config_entry.runtime_data.client.async_set_control_info(
-            humidity=humd_value
-        )
+
+        client = self.coordinator.config_entry.runtime_data.client
+        await client.async_set_control_info(humidity=humd_value)
         await self.coordinator.async_request_refresh()
 
     async def async_set_mode(self, mode: str) -> None:
         """Set new operating mode."""
         mode_value = MODE_REVERSE.get(mode)
         if mode_value:
-            await self.coordinator.config_entry.runtime_data.client.async_set_control_info(
-                mode=mode_value
-            )
+            client = self.coordinator.config_entry.runtime_data.client
+            await client.async_set_control_info(mode=mode_value)
             await self.coordinator.async_request_refresh()

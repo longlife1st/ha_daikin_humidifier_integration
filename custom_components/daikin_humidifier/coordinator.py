@@ -26,12 +26,12 @@ class DaikinDataUpdateCoordinator(DataUpdateCoordinator):
         """Update data via library."""
         try:
             client = self.config_entry.runtime_data.client
-            
+
             # Fetch all needed data in parallel would be better, but for now sequential
             control_info = await client.async_get_control_info()
             sensor_info = await client.async_get_sensor_info()
             unit_status = await client.async_get_unit_status()
-            
+
             return {
                 "control": control_info,
                 "sensors": sensor_info,

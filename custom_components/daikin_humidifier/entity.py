@@ -17,7 +17,7 @@ class DaikinEntity(CoordinatorEntity[DaikinDataUpdateCoordinator]):
     def __init__(self, coordinator: DaikinDataUpdateCoordinator) -> None:
         """Initialize Daikin Entity."""
         super().__init__(coordinator)
-        
+
         # Get device info from config entry or coordinator data
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.config_entry.entry_id)},

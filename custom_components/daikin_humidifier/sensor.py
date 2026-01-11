@@ -85,10 +85,10 @@ class DaikinSensor(DaikinEntity, SensorEntity):
         """Return the native value of the sensor."""
         sensors = self.coordinator.data.get("sensors", {})
         value = sensors.get(self.entity_description.key)
-        
+
         if value is None:
             return None
-            
+
         # Try to convert to appropriate type
         try:
             # For PM2.5 and humidity, return as integer
@@ -99,5 +99,5 @@ class DaikinSensor(DaikinEntity, SensorEntity):
                 return float(value)
         except (ValueError, TypeError):
             return None
-            
+
         return value

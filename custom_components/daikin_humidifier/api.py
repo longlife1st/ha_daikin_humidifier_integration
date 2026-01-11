@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import socket
-from typing import Any
 
 import aiohttp
 import async_timeout
@@ -31,8 +30,9 @@ class DaikinApiClientAuthenticationError(DaikinApiClientError):
 
 
 def _parse_response(response_text: str) -> dict[str, str]:
-    """Parse Daikin key=value format response.
-    
+    """
+    Parse Daikin key=value format response.
+
     Example: "ret=OK,pow=1,mode=1,humd=2,airvol=3"
     Returns: {"ret": "OK", "pow": "1", "mode": "1", "humd": "2", "airvol": "3"}
     """
@@ -60,11 +60,13 @@ class DaikinApiClient:
         host: str,
         session: aiohttp.ClientSession,
     ) -> None:
-        """Initialize Daikin API Client.
-        
+        """
+        Initialize Daikin API Client.
+
         Args:
             host: IP address or hostname of the Daikin device
             session: aiohttp client session
+
         """
         self._host = host
         self._session = session
@@ -98,13 +100,15 @@ class DaikinApiClient:
         humidity: str | None = None,
         fan_speed: str | None = None,
     ) -> dict[str, str]:
-        """Set control parameters.
-        
+        """
+        Set control parameters.
+
         Args:
             power: Power state ("0"=off, "1"=on)
             mode: Operating mode (1-5)
             humidity: Humidity level (0-3)
             fan_speed: Fan speed (0-5)
+
         """
         params = {}
         if power is not None:
