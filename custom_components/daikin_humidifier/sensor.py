@@ -34,14 +34,14 @@ ENTITY_DESCRIPTIONS = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
-        key="humi",
+        key="hhum",
         name="Humidity",
         device_class=SensorDeviceClass.HUMIDITY,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
-        key="temp",
+        key="htemp",
         name="Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -92,10 +92,10 @@ class DaikinSensor(DaikinEntity, SensorEntity):
         # Try to convert to appropriate type
         try:
             # For PM2.5 and humidity, return as integer
-            if self.entity_description.key in ("pm25", "humi"):
+            if self.entity_description.key in ("pm25", "hhum"):
                 return int(value)
             # For temperature, return as float
-            if self.entity_description.key == "temp":
+            if self.entity_description.key == "htemp":
                 return float(value)
         except (ValueError, TypeError):
             return None

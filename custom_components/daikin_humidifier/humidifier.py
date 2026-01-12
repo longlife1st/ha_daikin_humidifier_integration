@@ -90,7 +90,7 @@ class DaikinHumidifier(DaikinEntity, HumidifierEntity):
     def current_humidity(self) -> int | None:
         """Return the current humidity."""
         sensors = self.coordinator.data.get("sensors", {})
-        humi = sensors.get("humi")
+        humi = sensors.get("hhum")
         if humi:
             try:
                 return int(humi)
